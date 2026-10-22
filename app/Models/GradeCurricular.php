@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use Awobaz\Compoships\Compoships;
+use App\Models\Concerns\HasCompositeRelations;
+use App\Models\Relations\BelongsToComposite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GradeCurricular extends Model
 {
-    use Compoships, HasFactory, SoftDeletes;
+    use HasCompositeRelations, HasFactory, SoftDeletes;
 
     protected $table = 'edu_grades_curriculares';
 
@@ -43,9 +44,9 @@ class GradeCurricular extends Model
         return $this->belongsTo(Curso::class, 'cod_curso', 'cod_curso');
     }
 
-    public function etapa(): BelongsTo
+    public function etapa(): BelongsToComposite
     {
-        return $this->belongsTo(Etapa::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
+        return $this->belongsToComposite(Etapa::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
 
     public function disciplinas(): HasMany

@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use Awobaz\Compoships\Compoships;
+use App\Models\Concerns\HasCompositeRelations;
+use App\Models\Relations\BelongsToComposite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AplicacaoCurricular extends Model
 {
-    use Compoships, HasFactory;
+    use HasCompositeRelations, HasFactory;
 
     protected $table = 'edu_aplicacoes_curriculares';
 
@@ -57,9 +58,9 @@ class AplicacaoCurricular extends Model
         return $this->belongsTo(Curso::class, 'cod_curso', 'cod_curso');
     }
 
-    public function etapa(): BelongsTo
+    public function etapa(): BelongsToComposite
     {
-        return $this->belongsTo(Etapa::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
+        return $this->belongsToComposite(Etapa::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
 
     public function turno(): BelongsTo

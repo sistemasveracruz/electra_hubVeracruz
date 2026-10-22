@@ -2,16 +2,16 @@
 
 namespace App\Models;
 
-use Awobaz\Compoships\Compoships;
+use App\Models\Concerns\HasCompositeRelations;
+use App\Models\Relations\HasManyComposite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Etapa extends Model
 {
-    use Compoships, HasFactory, SoftDeletes;
+    use HasCompositeRelations, HasFactory, SoftDeletes;
 
     protected $table = 'edu_etapas';
 
@@ -58,28 +58,28 @@ class Etapa extends Model
         return $this->belongsTo(Curso::class, 'cod_curso', 'cod_curso');
     }
 
-    public function turmas(): HasMany
+    public function turmas(): HasManyComposite
     {
-        return $this->hasMany(Turma::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
+        return $this->hasManyComposite(Turma::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
 
-    public function matriculas(): HasMany
+    public function matriculas(): HasManyComposite
     {
-        return $this->hasMany(Matricula::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
+        return $this->hasManyComposite(Matricula::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
 
-    public function gradesCurriculares(): HasMany
+    public function gradesCurriculares(): HasManyComposite
     {
-        return $this->hasMany(GradeCurricular::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
+        return $this->hasManyComposite(GradeCurricular::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
 
-    public function gradeDisciplinas(): HasMany
+    public function gradeDisciplinas(): HasManyComposite
     {
-        return $this->hasMany(GradeCurricularDisciplina::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
+        return $this->hasManyComposite(GradeCurricularDisciplina::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
 
-    public function aplicacoesCurriculares(): HasMany
+    public function aplicacoesCurriculares(): HasManyComposite
     {
-        return $this->hasMany(AplicacaoCurricular::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
+        return $this->hasManyComposite(AplicacaoCurricular::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
 }
