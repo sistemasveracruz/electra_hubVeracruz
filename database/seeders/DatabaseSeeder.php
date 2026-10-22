@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,11 +14,23 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        if (app()->isProduction()) {
+            $this->command?->warn('Seeders de desenvolvimento não são executados em produção.');
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            return;
+        }
+
+        // Torna os dados gerados pelo Faker reproduzíveis em um banco recém-migrado.
+        fake('pt_BR')->seed(20261021);
+
+        // Ordem de dependência entre as tabelas.
+        $this->call([
+            ReferenciaSeeder::class,
+            InstitucionalSeeder::class,
+            EstruturaAcademicaSeeder::class,
+            GradeCurricularSeeder::class,
+            FuncionarioSeeder::class,
+            FamiliaAlunoSeeder::class,
         ]);
     }
 }
