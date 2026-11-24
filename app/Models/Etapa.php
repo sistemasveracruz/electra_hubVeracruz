@@ -72,14 +72,4 @@ class Etapa extends Model
     {
         return $this->hasManyComposite(GradeCurricular::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
-
-    public function gradeDisciplinas(): HasManyComposite
-    {
-        return $this->hasManyComposite(GradeCurricularDisciplina::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
-    }
-
-    public function aplicacoesCurriculares(): HasManyComposite
-    {
-        return $this->hasManyComposite(AplicacaoCurricular::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
-    }
 }

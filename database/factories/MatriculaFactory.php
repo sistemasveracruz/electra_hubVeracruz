@@ -21,7 +21,6 @@ class MatriculaFactory extends BaseFactory
     public function definition(): array
     {
         return [
-            'cod_matricula' => fn () => $this->nextKey(),
             'cod_pessoa' => Pessoa::factory()->aluno(10),
             'cod_turma' => Turma::factory(),
             'cod_escola' => fn (array $atributos) => $this->turma($atributos)->unidadeEscolar->cod_escola,

@@ -15,7 +15,7 @@ class Disciplina extends Model
 
     protected $primaryKey = 'cod_disciplina';
 
-    public $incrementing = false;
+    public $incrementing = true;
 
     protected $keyType = 'int';
 

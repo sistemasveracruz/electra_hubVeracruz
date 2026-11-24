@@ -15,7 +15,7 @@ class Enturma extends Model
 
     protected $primaryKey = 'cod_enturma';
 
-    public $incrementing = false;
+    public $incrementing = true;
 
     protected $keyType = 'int';
 

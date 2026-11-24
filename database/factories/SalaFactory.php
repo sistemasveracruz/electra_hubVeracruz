@@ -16,7 +16,6 @@ class SalaFactory extends BaseFactory
     public function definition(): array
     {
         return [
-            'cod_sala' => fn () => $this->nextKey(),
             'cod_unidade_escolar' => UnidadeEscolar::factory(),
             'cod_tipo_sala' => TipoSala::factory(),
             'nome' => 'Sala '.$this->faker->numberBetween(1, 30),

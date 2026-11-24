@@ -1,59 +1,111 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# HUB Veracruz
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplicação Laravel que centraliza os dados acadêmicos e institucionais da escola, carregados a partir do TOTVS RM.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2+ e Laravel 12
+- SQL Server
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Estrutura do banco
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+As tabelas são agrupadas por domínio, indicado pelo prefixo do nome:
 
-## Learning Laravel
+| Prefixo | Domínio | Exemplos |
+|---------|---------|----------|
+| `inst_` | Institucional | escolas, unidades escolares, pessoas, endereços, seções |
+| `edu_` | Educacional    | cursos, etapas, grades, turmas, matrículas, alunos |
+| `fun_` | Funcionários   | funcionários, funções, situações, professores |
+| `aux_` | Auxiliares     | parentesco, chaves do RM |
+| `doc_` | Documentação   | prefixos de domínio |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+As chaves primárias usam o padrão `cod_<entidade>`. Sempre que a tabela tem origem no RM, a chave é o próprio código do RM.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Diagrama
 
-## Laravel Sponsors
+- [database/schemas/hub_veracruz.dbml](database/schemas/hub_veracruz.dbml): código-fonte do diagrama no formato do [dbdiagram.io](https://dbdiagram.io). Para visualizar, cole o conteúdo num diagrama novo do site.
+- [database/schemas/18112026_hub_veracruz.pdf](database/schemas/18112026_hub_veracruz.pdf): o diagrama exportado em PDF, de dd/mm/AAAA.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Quem cria as tabelas são as migrations em [database/migrations/](database/migrations/). O DBML serve só como documentação: quando uma migration mudar, atualize o DBML e exporte o PDF de novo.
 
-### Premium Partners
+## Integração com o TOTVS RM
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Os dados vêm da leitura direta das bases do RM:
 
-## Contributing
+| Base | Conteúdo |
+|---|---|
+| `RM_IMPORTVC` | Educacional: pessoas, cursos, turmas, matrículas, professores |
+| `CORPORERM_HML` | Folha: funcionários (`PFUNC`), funções, seções, situações |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+As pessoas que estão em bases diferentes são ligadas pelo CPF, porque o `CODPESSOA` de uma base não corresponde ao da outra.
 
-## Code of Conduct
+### Carga inicial por script SQL
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+O script [database/scripts/carga_rm_completa.sql](database/scripts/carga_rm_completa.sql) preenche o banco inteiro na ordem das dependências. Para usá-lo:
 
-## Security Vulnerabilities
+1. Rode as migrations no banco de destino (`php artisan migrate:fresh`). Esse comando **apaga todos os dados** do banco.
+2. Abra o script no SSMS e confira, no bloco `[0]`, qual banco o `USE` seleciona.
+3. Execute o script. Cada INSERT tem um `NOT EXISTS`, então o script pode rodar de novo sem duplicar linhas.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+O índice no topo do script lista os blocos numerados (`[1.1]`, `[5.1]`...). Para ir até um bloco, busque o código dele com Ctrl+F.
 
-## License
+### Sincronização diária por procedures
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+As procedures em [database/scripts/procedures/](database/scripts/procedures/) mantêm o HUB atualizado com o RM. Há uma procedure por bloco do script de carga, com o mesmo número no nome do arquivo (ex.: `5.1_rm_sinc_edu_turmas.sql`). Cada uma:
+
+1. **atualiza** as linhas que mudaram no RM e reativa as que voltaram a aparecer;
+2. **insere** as linhas novas;
+3. faz **soft delete** (`ativo = 0` e `deleted_at`) das linhas que sumiram do RM. As tabelas sem `deleted_at`, como `edu_grade_curricular_disciplinas`, `edu_aplicacoes_curriculares` e `edu_responsaveis`, recebem um `DELETE` de verdade. `edu_turnos` não tem remoção.
+
+As colunas preenchidas só no HUB, como `edu_status.acessa_vera_digital`, não são alteradas.
+
+A procedure `dbo.rm_sinc_tudo` ([00_rm_sinc_tudo.sql](database/scripts/procedures/00_rm_sinc_tudo.sql)) chama todas na ordem do índice, numa única transação: se uma etapa falhar, nada é gravado. Num banco vazio ela faz a carga completa, exceto `doc_prefixos`, que continua no script de carga.
+
+**Criação:** a migration `2026_11_19_000000_create_rm_sinc_procedures` cria as procedures no `php artisan migrate`. Depois de alterar um `.sql`, rode o arquivo no SSMS, porque a migration não roda de novo sozinha.
+
+**Execução:**
+
+```bash
+php artisan rm:sincronizar-procedures            # sincroniza
+php artisan rm:sincronizar-procedures --dry-run  # executa e desfaz no final
+```
+
+No SSMS, o equivalente é `EXEC dbo.rm_sinc_tudo;`.
+
+**Agendamento:** [routes/console.php](routes/console.php) agenda o comando todo dia às 02:00, horário de Brasília. Para o agendamento funcionar, o servidor precisa desta linha no cron:
+
+```
+* * * * * cd /caminho/do/projeto && php artisan schedule:run >> /dev/null 2>&1
+```
+
+**Permissão:** o usuário do banco configurado no `.env` (`DB_USERNAME`) precisa de leitura (SELECT) nas bases `RM_IMPORTVC` e `CORPORERM_HML`.
+
+## View de login (`vw_login_pessoas`)
+
+A view [database/scripts/views/vw_login_pessoas.sql](database/scripts/views/vw_login_pessoas.sql) traz uma linha por CPF com os dados que o login do appapi usa:
+
+- **identificação:** `cpf`, `nome`, `cod_pessoa`;
+- **alunos e cursos:** `cod_alunos` (`[1,2]`) e `cod_cursos` (`{"2":[1,2],"3":[6]}`), dos alunos enturmados no ano;
+- **vínculos:** `estudante`, `ingressante`, `funcionario`, `pai_ou_mae`, `responsavel_financeiro`, `responsavel_pedagogico`, `ex_aluno`, `parcelas_em_aberto`;
+- **`habilita_login`:** vale 1 para aluno, funcionário, pai/mãe, responsável financeiro ou pedagógico, ou ex-aluno com parcelas em aberto;
+- **permissões:** as colunas `habilita_*` (menu, calendário, rematrícula, transporte...).
+
+```sql
+SELECT * FROM dbo.vw_login_pessoas WHERE cpf = '12345678901';
+```
+
+A view foi feita para ser consultada por CPF. A partir do CPF, cada etapa usa um índice, e esses índices são criados pela migration `2026_11_20_000000_create_vw_login_pessoas`.
+
+A view lê duas bases que precisam estar no mesmo servidor do HUB: `ExAlunos` (ex-alunos) e `Senior_VeraCruz` (títulos em aberto). Sem elas, a criação da view falha.
+
+Depois de alterar o `.sql`, rode o arquivo no SSMS.
+
+## View de alunos (`vw_alunos`)
+
+A view [database/scripts/views/vw_alunos.sql](database/scripts/views/vw_alunos.sql) traz uma linha por aluno (RA), com a matrícula mais recente, a turma, a situação e os dados de pai, mãe e responsáveis, incluindo o parentesco.
+
+```sql
+SELECT * FROM dbo.vw_alunos WHERE ano = YEAR(GETDATE());
+```
+
+Quando o aluno não tem pai, mãe ou algum responsável no RM, ele continua na view e as colunas dessa pessoa ficam `NULL`. A view é criada pela migration `2026_11_23_000000_create_vw_alunos`.

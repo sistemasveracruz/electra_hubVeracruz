@@ -27,9 +27,20 @@ return new class extends Migration
                 ->references(['cod_curso', 'cod_etapa'])
                 ->on('edu_etapas');
             $table->foreignId('cod_sala')
+                ->nullable()
                 ->constrained('edu_salas', 'cod_sala');
             $table->foreignId('cod_turno')
                 ->constrained('edu_turnos', 'cod_turno');
+
+            $table->foreignId('cod_pessoa_coordenador')
+                ->nullable()
+                ->constrained('inst_pessoas', 'cod_pessoa');
+            $table->foreignId('cod_pessoa_orientador')
+                ->nullable()
+                ->constrained('inst_pessoas', 'cod_pessoa');
+            $table->foreignId('cod_pessoa_professor_responsavel')
+                ->nullable()
+                ->constrained('inst_pessoas', 'cod_pessoa');
 
             $table->string('nome', 120);
             $table->string('nome_reduzido', 12);

@@ -114,6 +114,19 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        // Banco do TOTVS RM, usado só para leitura pelos comandos de sincronização (rm:*).
+        // 'rm' => [
+        //     'driver' => 'sqlsrv',
+        //     'host' => env('RM_DB_HOST'),
+        //     'port' => env('RM_DB_PORT', '1433'),
+        //     'database' => env('RM_DB_DATABASE'),
+        //     'username' => env('RM_DB_USERNAME'),
+        //     'password' => env('RM_DB_PASSWORD'),
+        //     'charset' => 'utf8',
+        //     'prefix' => '',
+        //     'prefix_indexes' => true,
+        // ],
+
     ],
 
     /*

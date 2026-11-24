@@ -18,7 +18,7 @@ class Matricula extends Model
 
     protected $primaryKey = 'cod_matricula';
 
-    public $incrementing = false;
+    public $incrementing = true;
 
     protected $keyType = 'int';
 

@@ -17,7 +17,6 @@ class DisciplinaFactory extends BaseFactory
         $sigla = $this->faker->randomElement(array_keys(Catalogo::DISCIPLINAS));
 
         return [
-            'cod_disciplina' => fn () => $this->nextKey(),
             'nome' => Catalogo::DISCIPLINAS[$sigla],
             'sigla' => $sigla,
             'observacoes' => null,

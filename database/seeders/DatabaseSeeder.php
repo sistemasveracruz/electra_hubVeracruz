@@ -11,26 +11,11 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * Os dados vêm do TOTVS RM pelo script database/scripts/carga_rm_completa.sql.
      */
     public function run(): void
     {
-        if (app()->isProduction()) {
-            $this->command?->warn('Seeders de desenvolvimento não são executados em produção.');
-
-            return;
-        }
-
-        // Torna os dados gerados pelo Faker reproduzíveis em um banco recém-migrado.
-        fake('pt_BR')->seed(20261021);
-
-        // Ordem de dependência entre as tabelas.
-        $this->call([
-            ReferenciaSeeder::class,
-            InstitucionalSeeder::class,
-            EstruturaAcademicaSeeder::class,
-            GradeCurricularSeeder::class,
-            FuncionarioSeeder::class,
-            FamiliaAlunoSeeder::class,
-        ]);
+        //
     }
 }

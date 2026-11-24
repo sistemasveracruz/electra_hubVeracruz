@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\HasCompositeRelations;
-use App\Models\Relations\BelongsToComposite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class AplicacaoCurricular extends Model
 {
-    use HasCompositeRelations, HasFactory;
+    use HasFactory;
 
     protected $table = 'edu_aplicacoes_curriculares';
 
@@ -22,11 +20,13 @@ class AplicacaoCurricular extends Model
 
     public $timestamps = false;
 
+    /**
+     * Sem cod_curso, a etapa só é identificável pela grade (gradeCurricular->etapa).
+     */
     protected $fillable = [
         'cod_aplicacao_curricular',
         'cod_grade_curricular',
         'cod_unidade_escolar',
-        'cod_curso',
         'cod_etapa',
         'cod_turno',
         'regime_grade',
@@ -51,16 +51,6 @@ class AplicacaoCurricular extends Model
     public function unidadeEscolar(): BelongsTo
     {
         return $this->belongsTo(UnidadeEscolar::class, 'cod_unidade_escolar', 'cod_unidade_escolar');
-    }
-
-    public function curso(): BelongsTo
-    {
-        return $this->belongsTo(Curso::class, 'cod_curso', 'cod_curso');
-    }
-
-    public function etapa(): BelongsToComposite
-    {
-        return $this->belongsToComposite(Etapa::class, ['cod_curso', 'cod_etapa'], ['cod_curso', 'cod_etapa']);
     }
 
     public function turno(): BelongsTo

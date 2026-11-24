@@ -21,6 +21,20 @@ return new class extends Migration
             $table->foreignId('cod_matricula')
                 ->constrained('edu_matriculas', 'cod_matricula');
 
+            // ADD 13/11/2026
+            $table->foreignId('cod_pessoa_pai')
+                ->nullable()
+                ->constrained('inst_pessoas', 'cod_pessoa');
+            $table->foreignId('cod_pessoa_mae')
+                ->nullable()
+                ->constrained('inst_pessoas', 'cod_pessoa');
+            $table->foreignId('cod_pessoa_responsavel_pedagogico')
+                ->nullable()
+                ->constrained('inst_pessoas', 'cod_pessoa');
+            $table->foreignId('cod_pessoa_responsavel_financeiro')
+                ->nullable()
+                ->constrained('inst_pessoas', 'cod_pessoa');
+
             $table->boolean('ativo')->default(true);
 
             $table->timestamps();

@@ -19,7 +19,6 @@ class EnturmaFactory extends BaseFactory
     public function definition(): array
     {
         return [
-            'cod_enturma' => fn () => $this->nextKey(),
             'cod_matricula' => Matricula::factory(),
             'cod_aluno' => fn (array $atributos) => $this->aluno($this->matricula($atributos)),
             'cod_turma' => fn (array $atributos) => $this->matricula($atributos)->cod_turma,

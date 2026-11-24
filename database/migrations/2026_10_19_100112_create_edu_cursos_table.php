@@ -16,6 +16,9 @@ return new class extends Migration
 
             $table->foreignId('cod_escola')
                 ->constrained('inst_escolas', 'cod_escola');
+                
+            $table->foreignId('cod_tipo_curso')
+                ->constrained('edu_tipo_cursos', 'cod_tipo_curso');
 
             $table->string('nome', 150);
             $table->string('sigla', 12)->nullable();

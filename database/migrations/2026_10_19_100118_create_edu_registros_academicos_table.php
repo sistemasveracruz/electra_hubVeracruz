@@ -27,7 +27,7 @@ return new class extends Migration
             $table->softDeletes();
 
             $table->unique(
-                ['cod_pessoa', 'cod_registro_academico'],
+                ['cod_pessoa', 'registro_academico'],
                 'uq_registros_academicos_cod_escola_registro_academico'
             );
         });

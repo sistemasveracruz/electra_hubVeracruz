@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TipoEndereco;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,7 @@ return new class extends Migration
             $table->foreignId('cod_pessoa')
                 ->constrained('inst_pessoas', 'cod_pessoa');
 
-            $table->enum('tipo_endereco', ['PESSOAL', 'EMPRESARIAL', 'CORRESPONDENCIA']);
+            $table->enum('tipo_endereco', TipoEndereco::valores());
             $table->string('cep', 8)->nullable();
             $table->string('logradouro', 200)->nullable();
             $table->string('numero', 20)->nullable();

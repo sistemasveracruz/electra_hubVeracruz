@@ -24,8 +24,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->primary(['cod_curso', 'cod_etapa'], 'pk_edu_etapas');
-
+            // Sem PK: o código da etapa só é único dentro do curso, e as FKs compostas
+            // (cod_curso, cod_etapa) das outras tabelas apontam para este índice único.
             $table->index('cod_curso', 'ix_etapas_cod_curso');
             $table->unique(['cod_curso', 'cod_etapa'], 'uk_etapas_curso_codigo');
         });

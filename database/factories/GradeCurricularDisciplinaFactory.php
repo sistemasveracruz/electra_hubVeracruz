@@ -19,16 +19,12 @@ class GradeCurricularDisciplinaFactory extends BaseFactory
     public function definition(): array
     {
         return [
-            'cod_grade_disciplina' => fn () => $this->nextKey(),
             'cod_grade_curricular' => GradeCurricular::factory(),
-            'cod_curso' => fn (array $atributos) => $this->grade($atributos)->cod_curso,
             'cod_etapa' => fn (array $atributos) => $this->grade($atributos)->cod_etapa,
             'cod_disciplina' => Disciplina::factory(),
-            'cod_turno' => null,
             'periodo_grade' => 'ANUAL',
             'aulas_semanais' => $this->faker->numberBetween(1, 5),
-            'quantidade_semanas' => Catalogo::SEMANAS_LETIVAS,
-            'carga_horaria' => fn (array $atributos) => $atributos['aulas_semanais'] * $atributos['quantidade_semanas'],
+            'carga_horaria' => fn (array $atributos) => $atributos['aulas_semanais'] * Catalogo::SEMANAS_LETIVAS,
             'obrigatoria' => true,
         ];
     }

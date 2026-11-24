@@ -23,7 +23,6 @@ class AplicacaoCurricularFactory extends BaseFactory
             'cod_unidade_escolar' => fn (array $atributos) => UnidadeEscolar::factory()->create([
                 'cod_escola' => $this->grade($atributos)->curso->cod_escola,
             ])->cod_unidade_escolar,
-            'cod_curso' => fn (array $atributos) => $this->grade($atributos)->cod_curso,
             'cod_etapa' => fn (array $atributos) => $this->grade($atributos)->cod_etapa,
             'cod_turno' => null,
             'regime_grade' => 'ANUAL',

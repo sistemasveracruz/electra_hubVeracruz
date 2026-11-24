@@ -6,8 +6,7 @@ use App\Models\Familia;
 use App\Models\Pessoa;
 
 /**
- * Cada linha liga um familiar (cod_pessoa) a um aluno (cod_pessoa_aluno).
- * Sem cod_familia informado, inicia uma nova família; use daFamilia() para incluir membros.
+ * Cada linha liga um familiar (cod_pessoa) a um aluno (cod_pessoa_aluno), com um cod_familia próprio.
  *
  * @extends BaseFactory<Familia>
  */
@@ -23,10 +22,5 @@ class FamiliaFactory extends BaseFactory
             'cod_pessoa_aluno' => Pessoa::factory()->aluno(10),
             'ativo' => true,
         ];
-    }
-
-    public function daFamilia(int $codFamilia): static
-    {
-        return $this->state(['cod_familia' => $codFamilia]);
     }
 }

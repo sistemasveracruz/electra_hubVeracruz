@@ -19,13 +19,8 @@ return new class extends Migration
             $table->foreignId('cod_unidade_escolar')
                 ->nullable()
                 ->constrained('inst_unidades_escolares', 'cod_unidade_escolar');
-            $table->foreignId('cod_curso')
-                ->nullable()
-                ->constrained('edu_cursos', 'cod_curso');
+            // Sem cod_curso não há FK para edu_etapas (chave composta); o curso é o da grade.
             $table->unsignedBigInteger('cod_etapa')->nullable();
-            $table->foreign(['cod_curso', 'cod_etapa'], 'fk_aplicacoes_curriculares_etapa')
-                ->references(['cod_curso', 'cod_etapa'])
-                ->on('edu_etapas');
             $table->foreignId('cod_turno')
                 ->nullable()
                 ->constrained('edu_turnos', 'cod_turno');
@@ -38,7 +33,7 @@ return new class extends Migration
 
             $table->index(
                 ['cod_grade_curricular', 'cod_unidade_escolar', 'cod_etapa', 'cod_turno'],
-                'ix_aplicacoes_curriculares_cod_grade_cod_unidade_cod_etapa'
+                'ix_aplicacoes_curriculares_cod_grade_cod_unidade_cod_e_0c1f2a72'
             );
         });
     }

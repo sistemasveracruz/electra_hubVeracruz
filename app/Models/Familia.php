@@ -13,11 +13,6 @@ class Familia extends Model
 
     protected $table = 'edu_familias';
 
-    /**
-     * Chave primária composta (cod_familia, cod_pessoa, cod_pessoa_aluno).
-     * O Eloquent só aceita uma coluna em $primaryKey; as consultas de
-     * save/delete/refresh são completadas com as demais colunas nos métodos abaixo.
-     */
     protected $primaryKey = 'cod_familia';
 
     public $incrementing = false;
@@ -36,20 +31,6 @@ class Familia extends Model
         return [
             'ativo' => 'boolean',
         ];
-    }
-
-    protected function setKeysForSelectQuery($query)
-    {
-        return parent::setKeysForSelectQuery($query)
-            ->where('cod_pessoa', '=', $this->original['cod_pessoa'] ?? $this->getAttribute('cod_pessoa'))
-            ->where('cod_pessoa_aluno', '=', $this->original['cod_pessoa_aluno'] ?? $this->getAttribute('cod_pessoa_aluno'));
-    }
-
-    protected function setKeysForSaveQuery($query)
-    {
-        return parent::setKeysForSaveQuery($query)
-            ->where('cod_pessoa', '=', $this->original['cod_pessoa'] ?? $this->getAttribute('cod_pessoa'))
-            ->where('cod_pessoa_aluno', '=', $this->original['cod_pessoa_aluno'] ?? $this->getAttribute('cod_pessoa_aluno'));
     }
 
     public function pessoa(): BelongsTo

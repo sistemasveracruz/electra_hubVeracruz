@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fun_funcoes_turma', function (Blueprint $table) {
-            $table->bigIncrements('cod_funcao_turma');
+        // Situações do funcionário no RM (PCODSITUACAO.CODINTERNO): A, D, E, F...
+        Schema::create('fun_situacao', function (Blueprint $table) {
+            $table->char('cod_fun_situacao', 1)->primary();
 
-            $table->string('codigo', 50);
             $table->string('descricao', 150);
 
-            $table->unique('codigo', 'uq_funcoes_turma_codigo');
+            $table->boolean('ativo')->default(true);
+
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('fun_funcoes_turma');
+        Schema::dropIfExists('fun_situacao');
     }
 };

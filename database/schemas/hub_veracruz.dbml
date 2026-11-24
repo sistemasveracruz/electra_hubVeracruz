@@ -1,0 +1,699 @@
+
+// ----- BASE DO BANCO ----- //
+table inst_escolas {
+  cod_escola bigint [pk, not null]
+  nome varchar(150) [not null]
+  nome_fantasia varchar(150)
+  cnpj varchar(14) [not null]
+  descricao varchar(250)
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table inst_unidades_escolares {
+  cod_unidade_escolar bigint [pk, not null]
+  cod_escola bigint [not null, ref: > inst_escolas.cod_escola]
+  nome varchar(150) [not null]
+  sigla varchar(20)
+  descricao varchar(250)
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+
+table inst_pessoas {
+  cod_pessoa bigint [pk, not null]
+  cpf varchar(11) [not null, unique]
+  nome varchar(150) [not null]
+  data_nascimento date
+  email varchar(250)
+  email_pessoal varchar(250) 
+  email_alternativo varchar(250) 
+
+  telefone_fixo VARCHAR(20)
+  telefone_pessoal VARCHAR(20)
+  telefone_empresa VARCHAR(20)
+
+  falecido boolean [default: true, not null]
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  indexes { (cpf, cod_pessoa) }
+}
+
+
+enum enum_tipo_endereco {
+  PESSOAL
+  EMPRESARIAL
+  CORRESPONDENCIA
+}
+
+enum enum_tipo_professor {
+  J [note: 'Adjunto']
+  I [note: 'Assistente']
+  X [note: 'Auxiliar']
+  D [note: 'Coordenador']
+  C [note: 'Colaborador']
+  P [note: 'Conteudista']
+  E [note: 'Diretor de Turma']
+  Q [note: 'Mediador pedagógico']
+  M [note: 'Monitor']
+  N [note: 'Não docente']
+  R [note: 'Orientador']
+  O [note: 'Outros']
+  S [note: 'Substituto']
+  T [note: 'Titular']
+  U [note: 'Tutor']
+}
+
+table aux_tipo_endereco {
+  cod_tipo_endereco bigint [pk, not null]
+  descricao varchar [not null]
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+
+table inst_pessoa_enderecos {
+  cod_pessoa_endereco bigint [pk, not null, increment]
+  cod_pessoa bigint [not null, ref: > inst_pessoas.cod_pessoa]
+
+  tipo_endereco enum_tipo_endereco  [not null]
+  cep varchar(8)
+  logradouro varchar(200)
+  numero varchar(20)
+  complemento varchar(100)
+  bairro varchar(100)
+  cidade varchar(100)
+  uf char(2)
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  indexes {
+    cod_pessoa [name: "ix_pessoa_enderecos_cod_pessoa"]
+    (cod_pessoa, tipo_endereco)
+  }
+}
+
+// ADD 07/11
+table inst_secoes {
+  cod_secao varchar(20) [pk, not null]
+  descricao varchar(150) [not null]
+
+  cod_secao_pai varchar(20) [null, ref: ?>? inst_secoes.cod_secao]
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+// ----- FIM BASE DO BANCO ----- //
+// ==============================//
+// -------- FUNCIONARIOS ------- //
+
+// TABELA ADD 07/11
+table fun_situacao {
+  cod_fun_situacao char(1) [pk, not null]
+  descricao varchar(150) [not null]
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+// TABELA ADD 07/11
+table fun_funcoes {
+  cod_funcao varchar(20) [pk, not null]
+  nome varchar(150) [not null]
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table fun_funcionarios {
+  cod_funcionario bigint [pk, increment]
+  chapa varchar(20) [not null, unique] // ADD 07/11
+  cod_pessoa bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  tipo_cadastro VARCHAR(30) [not null, default: 'PESSOA']
+
+  cod_secao varchar(20) [not null, ref: > inst_secoes.cod_secao] // ADD 07/11
+  cod_funcao varchar(20) [not null, ref: > fun_funcoes.cod_funcao] // ADD 07/11
+  cod_fun_situacao char(1) [not null, ref: > fun_situacao.cod_fun_situacao] // ADD 07/11
+
+  // REMOVIDO 07/11
+  // professor_cadastro boolean [default: false, not null]
+
+  data_admissao datetime // ADD 07/11
+  data_desligamento datetime // ADD 07/11
+
+  ativo boolean [default: true, not null] // PFUNC.CODSITUACAO IN ('A', 'E', 'F', 'G', 'W', 'Y') = TRUE SE NÃO FALSE 
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  Indexes {
+    (cod_pessoa, chapa) 
+  }
+}
+
+// TABELA ADD 07/11
+table fun_professores {
+  cod_professor bigint [pk, not null] // SPROFESSOR.CODPROF
+  cod_pessoa bigint [not null, ref: > inst_pessoas.cod_pessoa] 
+  chapa varchar(20) [not null, ref: > fun_funcionarios.chapa]
+  
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+// TABELA ADD 07/11
+table fun_professor_disciplinas {
+  cod_professor_disciplina bigint [pk, increment] // APENAS PARA CONSULTAS INTERNAS SEM RELACAO TOTVS
+  cod_disciplina bigint [not null, ref: > edu_disciplinas.cod_disciplina] 
+  cod_professor bigint  [not null, ref: > fun_professores.cod_professor]
+  
+  cod_turma bigint [not null, ref: > edu_turmas.cod_turma]
+  tipo_professor char(1)
+
+   
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+
+
+// TABELA REMOVIDO 07/11
+// table fun_vinculos_funcionarios {
+//   cod_vinculo_funcionario bigint [pk, not null, increment]
+//   cod_funcionario bigint [not null, ref: > fun_funcionarios.cod_funcionario]
+//   cod_escola bigint [not null, ref: > inst_escolas.cod_escola]
+//   cod_unidade_escolar bigint [not null, ref: > inst_unidades_escolares.cod_unidade_escolar]
+//   cargo varchar(120)
+//   setor varchar(120)
+//   tipo_vinculo varchar(50)
+//   data_admissao datetime
+//   data_desligamento datetime
+  
+//   ativo boolean [default: true, not null]
+
+//   created_at datetime
+//   updated_at datetime
+//   deleted_at datetime
+
+//   Indexes {
+//     (cod_funcionario, cod_escola) [name: "ix_vinculos_funcionais_cod_funcionario_cod_escola"]
+//   }
+// }
+
+// TABELA REMOVIDO 07/11
+// table fun_turma_funcionarios {
+//   cod_turma_funcionario bigint [pk, not null, increment]
+//   cod_turma bigint [not null, ref: > edu_turmas.cod_turma]
+//   cod_funcionario bigint [not null, ref: > fun_funcionarios.cod_funcionario]
+//   cod_funcao_turma bigint [not null, ref: > fun_funcoes_turma.cod_funcao_turma]
+//   data_inicio datetime
+//   data_fim datetime
+  
+//   ativo boolean [default: true, not null]
+
+//   created_at datetime
+//   updated_at datetime
+//   deleted_at datetime
+
+//   indexes {
+//     (cod_turma, cod_funcionario, cod_funcao_turma) [name: "ix_turma_funcionarios_cod_turma_cod_funcionario_cod_fu_3daa9dd5"]
+//   }
+// }
+
+// TABELA REMOVIDO 07/11
+// Table fun_funcoes_turma {
+//   cod_funcao_turma BIGINT [pk, not null, increment]
+//   codigo VARCHAR(50) [not null]
+//   descricao VARCHAR(150) [not null]
+
+//   Indexes {
+//     codigo [unique, name: "uq_funcoes_turma_codigo"]
+//   }
+// }
+
+// TABELA REMOVIDO 07/11
+// table fun_turma_disciplina_funcionarios {
+//   cod_turma_disciplina_funcionario bigint [pk, not null]
+//   cod_turma_disciplina bigint [not null, ref: > edu_turma_disciplinas.cod_turma_disciplina]
+//   cod_funcionario bigint [not null, ref: > fun_funcionarios.cod_funcionario]
+//   tipo_atribuicao VARCHAR(60)
+
+//   codigo_papel_origem varchar(30)
+//   data_inicio datetime
+//   data_fim datetime
+
+//   ativo boolean [default: true, not null]
+
+//   created_at datetime
+//   updated_at datetime
+//   deleted_at datetime
+
+//   indexes {
+//     (cod_turma_disciplina, cod_funcionario) [name: "ix_turma_disciplina_funcionarios_cod_turma_disciplina__81e07f02"]
+//   }
+// }
+
+
+// ----- FIM FUNCIONARIOS ----- //
+// ============================ //
+// -------- EDUCACIONAL ------- //
+
+table edu_familias {
+  cod_familia bigint [pk, not null]
+  cod_pessoa bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  cod_pessoa_aluno bigint [not null, ref: > inst_pessoas.cod_pessoa]
+
+  cod_parentesco bigint [not null, ref: > aux_parentesco.cod_parentesco] // ADD 13/11/2026
+  parentesco varchar(25) [not null] // ADD 13/11/2026
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  Indexes {
+    (cod_familia, cod_pessoa) [name: "ix_familias_pessoas_cod_familia_cod_pessoa"]
+  }
+}
+
+table edu_responsaveis_financeiros {
+  cod_responsavel_financeiro bigint [not null, pk, increment]
+  cod_pessoa_aluno bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  cod_pessoa_responsavel bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  cod_parentesco_responsavel bingint [ref: ?>? aux_parentesco.cod_parentesco]
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_responsaveis_pedagogico {
+  cod_responsavel_pedagogico bigint [not null, pk, increment]
+  cod_pessoa_aluno bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  cod_pessoa_responsavel bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  cod_parentesco_responsavel bingint [ref: ?>? aux_parentesco.cod_parentesco]
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_responsaveis {
+  cod_aluno bigint [not null, ref: > edu_alunos.cod_aluno]
+  cod_pessoa_aluno bigint [not null, ref: > inst_pessoas.cod_pessoa]
+
+  cod_responsavel_pedagogico bigint [not null, ref: > edu_responsaveis_pedagogico.cod_responsavel_pedagogico]
+  cod_responsavel_financeiro bigint [not null, ref: > edu_responsaveis_financeiros.cod_responsavel_financeiro]
+
+  created_at datetime
+  updated_at datetime
+
+  indexes {
+    (cod_aluno, cod_responsavel_pedagogico, cod_responsavel_financeiro) [pk]
+  }
+}
+
+table edu_tipo_cursos {
+  cod_tipo_curso bigint [pk, not null]
+  cod_escola bigint [not null, ref: > inst_escolas.cod_escola]
+  nome varchar(150) [not null]
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_cursos {
+  cod_curso bigint [pk, not null]
+  cod_escola bigint [not null, ref: > inst_escolas.cod_escola]
+  nome varchar(150) [not null]
+  sigla varchar(12)
+
+  cod_tipo_curso bigint [not null, ref: > edu_tipo_cursos.cod_tipo_curso]
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_etapas {
+  cod_etapa bigint [not null]
+  cod_curso bigint [not null, ref: > edu_cursos.cod_curso]
+  nome varchar(150) [not null]
+  sigla varchar(12)
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  indexes {
+    cod_curso [name: "ix_etapas_cod_curso"]
+    (cod_curso, cod_etapa) [unique, name: "uk_etapas_curso_codigo"]
+  }
+}
+
+table edu_turnos {
+  cod_turno bigint [pk, not null]
+  nome varchar(80) [not null]
+  sigla varchar(20)
+}
+
+table edu_periodos_letivos {
+  cod_periodo_letivo bigint [pk, not null]
+  cod_unidade_escolar bigint [not null, ref: > inst_unidades_escolares.cod_unidade_escolar]
+  cod_tipo_curso bigint [not null, ref: > edu_tipo_cursos.cod_tipo_curso]
+
+  cod_periodo_letivo_anterior bigint [null, ref: ?>? edu_periodos_letivos.cod_periodo_letivo]
+
+  data_inicio datetime
+  data_fim datetime
+  data_estimada datetime
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_tipo_salas {
+  cod_tipo_sala bigint [not null, pk]
+  nome varchar(120) [not null]
+  permite_reserva boolean [default: false, not null]
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_salas {
+  cod_sala bigint [not null, pk, increment]
+  cod_unidade_escolar bigint [not null, ref: > inst_unidades_escolares.cod_unidade_escolar]
+  cod_tipo_sala bigint [not null, ref: > edu_tipo_salas.cod_tipo_sala]
+
+  nome varchar(120) [not null]
+  descricao varchar(250) [null]
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+  
+  indexes {
+    (cod_unidade_escolar, nome) [name: "ix_salas_cod_unidade_nome"]
+  }
+}
+
+table edu_turmas {
+  cod_turma bigint [pk, not null, increment]
+  codigo_turma varchar(20) [not null]
+
+  cod_unidade_escolar bigint [not null, ref: > inst_unidades_escolares.cod_unidade_escolar]
+  cod_periodo_letivo bigint [not null, ref: > edu_periodos_letivos.cod_periodo_letivo]
+
+  cod_curso bigint [not null, ref: > edu_cursos.cod_curso]
+  cod_etapa bigint [not null, ref: > edu_etapas.cod_etapa]
+  cod_sala bigint [ ref: ?>? edu_salas.cod_sala]
+  cod_turno bigint [not null, ref: > edu_turnos.cod_turno]
+  
+
+  cod_pessoa_coordenador bigint [null, ref: ?>? inst_pessoas.cod_pessoa ]
+  cod_pessoa_orientador bigint [null, ref: ?>? inst_pessoas.cod_pessoa ]
+  cod_pessoa_professor_responsavel bigint [null, ref: ?>? inst_pessoas.cod_pessoa ]
+
+  nome varchar(120) [not null]
+  nome_reduzido varchar(12) [not null]
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  indexes {
+    (cod_periodo_letivo, codigo_turma, cod_etapa, cod_turno) [name: "ix_turmas_cod_periodo_letivo_codigo_turma_cod_etapa_cod_turno"]
+  }
+}
+
+table edu_disciplinas {
+  cod_disciplina bigint [pk, not null, increment]
+  nome varchar(120) [not null]
+  sigla varchar(30)
+  observacoes varchar(250)
+
+  ativo boolean [default: true, not null]
+  
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_turma_disciplinas {
+  cod_turma_disciplina bigint [pk, not null]
+  cod_turma bigint [not null, ref: > edu_turmas.cod_turma]
+  cod_disciplina bigint [not null, ref: > edu_disciplinas.cod_disciplina]
+
+  ativo boolean [default: true, not null]
+  
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  indexes {
+    (cod_disciplina, cod_turma) [unique]
+  }
+}
+
+table edu_registros_academicos {
+  cod_registro_academico bigint [pk, not null, increment]
+  cod_pessoa bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  cod_escola bigint [not null, ref: > inst_escolas.cod_escola]
+
+  registro_academico varchar(12) [not null]
+
+  ativo boolean [default: true, not null]
+  
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  Indexes {
+    (cod_pessoa, registro_academico) [unique, name: "uq_registros_academicos_cod_escola_registro_academico"]
+  }
+}
+
+table edu_matriculas {
+  cod_matricula bigint [pk, not null, increment]
+  
+  cod_pessoa bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  cod_escola bigint [not null, ref: > inst_escolas.cod_escola]
+  cod_unidade_escolar bigint [not null, ref: > inst_unidades_escolares.cod_unidade_escolar]
+  
+  cod_curso bigint [not null, ref: > edu_cursos.cod_curso]
+  cod_etapa bigint [not null, ref: > edu_etapas.cod_etapa]
+  cod_turma bigint [not null, ref: > edu_turmas.cod_turma]
+
+  cod_status bigint [not null, ref: > edu_status.cod_status]
+
+  cod_registro_academico bigint [not null, ref: > edu_registros_academicos.cod_registro_academico]
+  
+
+  ativo boolean [default: true, not null]
+  
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_alunos {
+  cod_aluno bigint [pk, not null, increment]
+  cod_pessoa bigint [not null, ref: > inst_pessoas.cod_pessoa]
+  
+  cod_registro_academico bigint [not null, ref: > edu_registros_academicos.cod_registro_academico]
+  cod_matricula bigint [not null, ref: > edu_matriculas.cod_matricula]
+  
+  cod_pessoa_pai bigint [ref: ?>? inst_pessoas.cod_pessoa]  // ADD 13/11/2026
+  cod_pessoa_mae bigint [ref: ?>? inst_pessoas.cod_pessoa]// ADD 13/11/2026
+  cod_pessoa_responsavel_pedagogico bigint [ref: ?>? inst_pessoas.cod_pessoa]// ADD 13/11/2026
+  cod_pessoa_responsavel_financeiro bigint [ref: ?>? inst_pessoas.cod_pessoa]// ADD 13/11/2026
+
+  ativo boolean [default: true, not null]
+  
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_enturmas {
+  cod_enturma bigint [pk, not null, increment]
+  cod_aluno bigint [not null, ref: > edu_alunos.cod_aluno]
+  cod_matricula bigint [not null, ref: > edu_matriculas.cod_matricula]
+  cod_turma bigint [not null, ref: > edu_turmas.cod_turma]
+  cod_status bigint [not null, ref: > edu_status.cod_status]
+
+  numero_chamada varchar(120)
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+
+  indexes {
+    (cod_matricula, cod_turma) [name: "ix_enturmas_cod_matricula_cod_turma"]
+    (cod_enturma, cod_matricula) [unique, name: "uq_enturmas_cod_enturma_cod_matricula"]
+  }
+}
+
+table edu_status {
+  cod_status bigint [pk, not null]
+  nome varchar(120) [not null]
+  descricao varchar(250)
+
+  ativo boolean [default: true, not null]
+  
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_grades_curriculares {
+  cod_grade_curricular bigint [pk, not null, increment]
+  cod_grade varchar(20) [not null]
+  cod_curso bigint [not null, ref: > edu_cursos.cod_curso]
+  cod_etapa bigint [not null, ref: > edu_etapas.cod_etapa]
+  descricao varchar [not null]
+
+  data_inicio datetime
+  data_fim datetime
+
+  carga_horaria decimal (10,2)
+
+  ativo boolean [default: true, not null]
+  
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+table edu_grade_curricular_disciplinas {
+  cod_grade_disciplina bigint [pk, not null, increment]
+  cod_grade_curricular bigint [not null, ref: > edu_grades_curriculares.cod_grade_curricular]
+  
+  cod_etapa BIGINT [not null, ref: > edu_etapas.cod_etapa]
+  cod_curso BIGINT [not null, ref: > edu_cursos.cod_curso]
+  cod_disciplina BIGINT [not null, ref: > edu_disciplinas.cod_disciplina]
+  
+  // cod_turno bigint [ref: ?>? edu_turnos.cod_turno] // não foi encontrado o cod turno
+  periodo_grade varchar(30)
+
+  aulas_semanais decimal (8,2)
+  // quantidade_semanas decimal (8,2)
+  carga_horaria decimal (10,2)
+  obrigatoria boolean [default: true, not null]
+  
+  indexes {
+    // (cod_grade_disciplina, cod_etapa, cod_disciplina, cod_turno, periodo_grade) [name: "ix_grades_disciplinas_cod_grade_cod_etapa_cod_discipli_d69ac9c5"]
+    (cod_grade_disciplina, cod_etapa, cod_disciplina, periodo_grade) [name: "ix_grades_disciplinas_cod_grade_cod_etapa_cod_discipli_d69ac9c5"]
+  }
+}
+
+table edu_aplicacoes_curriculares {
+  cod_aplicacao_curricular bigint [pk, not null]
+  cod_grade_curricular bigint [not null, ref: > edu_grades_curriculares.cod_grade_curricular]
+  cod_unidade_escolar bigint [ref: ?>? inst_unidades_escolares.cod_unidade_escolar ]
+  cod_etapa bigint [ref: ?>? edu_etapas.cod_etapa]
+  cod_turno bigint [ref: ?>? edu_turnos.cod_turno]
+
+  regime_grade varchar(30)
+  periodo_grade varchar(30)
+
+  data_inicio datetime
+  data_fim datetime
+
+  indexes {
+    (cod_grade_curricular, cod_unidade_escolar, cod_etapa, cod_turno) [name: "ix_aplicacoes_curriculares_cod_grade_cod_unidade_cod_e_0c1f2a72"]
+  }
+}
+
+// ----- FIM EDUCACIONAL ----- //
+// =========================== //
+// ------- AUXIALIARES ------- //
+
+table aux_parentesco {
+  cod_parentesco bigint [pk, not null, increment]
+  descricacao varchar [not null]
+
+  ativo boolean [default: true, not null]
+
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+
+// ----- FIM AUXIALIARES ----- //
+// =========================== //
+// ------- DOCUMENTACAO ------ //
+
+table doc_prefixos {
+  cod_prefixo bigint [pk, not null]
+  sigla char(6) [not null, unique]
+  descricao varchar(250)
+}
+
+// matriculas_disciplinas não encontrei necesidade para essa tabela, já que ele é matriculado no curso e curso tem as diciplinas
+
+
+
+// ------- VIEWS ------- //
+// vw_login_pessoas (ADD 20/11/2026): uma linha por CPF com o que o login do appapi usa
+// (identidade, vínculos, cod_cursos/cod_alunos/ensinos e as flags de available_options).
+// Fonte: database/scripts/views/vw_login_pessoas.sql

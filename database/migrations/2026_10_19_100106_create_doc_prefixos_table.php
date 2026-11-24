@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('doc_prefixos', function (Blueprint $table) {
             $table->unsignedBigInteger('cod_prefixo')->primary();
 
-            $table->string('sigla', 4)->unique();
+            $table->char('sigla', 6)->unique();
             $table->string('descricao', 250)->nullable();
         });
     }

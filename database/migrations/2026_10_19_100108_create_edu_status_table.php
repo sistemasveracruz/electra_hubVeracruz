@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nome', 120);
             $table->string('descricao', 250)->nullable();
 
+            $table->boolean('acessa_vera_digital')->default(false);
             $table->boolean('ativo')->default(true);
 
             $table->timestamps();

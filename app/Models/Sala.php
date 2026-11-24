@@ -16,7 +16,7 @@ class Sala extends Model
 
     protected $primaryKey = 'cod_sala';
 
-    public $incrementing = false;
+    public $incrementing = true;
 
     protected $keyType = 'int';
 
